@@ -1,5 +1,18 @@
 import express from "express"
 import client from "./redis.js";
+import rateLimit from "express-rate-limit";
+
+
+const limiter = rateLimit({
+    windowMs: 60 * 1000,
+    limit: 5,
+    message: {
+        success: false,
+        message: "Too many request. Try again later"
+    }
+})
+
+
 
 
 const app = express()
@@ -20,7 +33,7 @@ app.get("/", (req, res) => {
     })
 })
 
-app.get("/products", async (req, res) => {
+app.get("/products", limiter ,async (req, res) => {
     const cacheKey = 'all_products'
 
     try {
